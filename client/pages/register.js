@@ -1,12 +1,10 @@
-import React from "react";
+import React,  { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
-//import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
@@ -15,21 +13,25 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Layout from "../components/layout";
 import Link from "next/link";
+import MuiAlert from '@material-ui/lab/Alert';
 
 import { useForm } from "react-hook-form";
 import axios from 'axios';
-import useSWR from 'swr';
 
-const fetcher = url => axios.get(url).then(res => res.data)
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link href="#">Your Website</Link> {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
+function StatusAlert(props) {
+  const status = props.status;
+  if (!status) {
+    return ''
+  }
+  if(status.success) {
+    return <Alert severity="success">{status.msg}</Alert>
+  } else {
+    return <Alert severity="error">{status.msg}</Alert>
+  }
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -52,19 +54,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-let renderCount = 0;
 
 export default function SignUp() {
   const classes = useStyles();
-
+  const [resStatus, setResStatus] = useState(null);
   const { register, handleSubmit } = useForm();
 
-  renderCount++;
 
-  const onSubmit = (fields) => {
-      console.log(fields)
-      const { data, error } = useSWR('http://localhost:8000/status', fetcher)
-      // console.log(data, error);
+  const onSubmit = async (data) => {
+        // Call register end point
+        const res = await axios.post('http://localhost:8000/register', data, {validateStatus: function (status) {
+          return true; // default
+        },});
+        
+        // User register successed
+        if(res.status >= 200 && res.status < 300) {
+          // Set success message
+          setResStatus({success: 1, msg: `Registration successed!`});
+        } else {
+          // User register failed
+          // Set error message
+          setResStatus({success: 0, msg:`Error: ${res.data.message}. Message: ${res.data.errors.message}`});
+        }
     }
 
   return (
@@ -76,7 +87,7 @@ export default function SignUp() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign up {renderCount}
+            Sign up
           </Typography>
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -94,7 +105,7 @@ export default function SignUp() {
                   id="firstName"
                   label="First Name"
                   autoFocus
-                  inputRef={register}    
+                  inputRef={register({ required: true})}    
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -106,7 +117,7 @@ export default function SignUp() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="lname"
-                  inputRef={register}
+                  inputRef={register({ required: true})}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -118,7 +129,7 @@ export default function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
-                  inputRef={register}
+                  inputRef={register({ required: true})}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -131,7 +142,7 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="current-password"
-                  inputRef={register}
+                  inputRef={register({ required: true})}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -162,7 +173,7 @@ export default function SignUp() {
           </form>
         </div>
         <Box mt={5}>
-          <Copyright />
+          <StatusAlert status={resStatus} />
         </Box>
       </Container>
     </Layout>
