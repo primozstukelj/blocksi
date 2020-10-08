@@ -17,7 +17,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    name: {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
       type: String,
       required: true,
     },
@@ -53,7 +57,7 @@ userSchema.pre("save", async function save(next) {
 userSchema.method({
   transform() {
     const transformed = {};
-    const fields = ["id", "name", "email", "createdAt"];
+    const fields = ["id", "firstName", "lastName", "email", "createdAt"];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
@@ -62,11 +66,12 @@ userSchema.method({
     return transformed;
   },
 
-  token() {
+  token(userId) {
     const playload = {
       exp: moment().add(jwtExpirationInterval, "minutes").unix(),
       iat: moment().unix(),
       sub: this._id,
+      userId
     };
     return jwt.encode(playload, jwtSecret);
   },
@@ -110,11 +115,12 @@ userSchema.statics.get = async function (id) {
  */
 userSchema.statics.findAndGenerateToken = async function (options) {
   const { email, password, refreshObject } = options;
-  console.log(refreshObject);
+
   if (!email)
     throw new APIError({ message: "An email is required to generate a token" });
 
   const user = await this.findOne({ email }).exec();
+
   const err = {
     status: httpStatus.UNAUTHORIZED,
     isPublic: true,
@@ -122,14 +128,14 @@ userSchema.statics.findAndGenerateToken = async function (options) {
 
   if (password) {
     if (user && (await user.passwordMatches(password))) {
-      return { user, accessToken: user.token() };
+      return { user, accessToken: user.token(user._id) };
     }
     err.message = "Incorrect email or password";
   } else if (refreshObject && refreshObject.userEmail === email) {
     if (moment(refreshObject.expires).isBefore()) {
       err.message = "Invalid refresh token.";
     } else {
-      return { user, accessToken: user.token() };
+      return { user, accessToken: user.token(user._id) };
     }
   } else {
     err.message = "Incorrect email or refreshToken";
