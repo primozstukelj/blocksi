@@ -7,7 +7,7 @@ const jwtExpirationInterval = 15
 // pass: 2020"="="
 module.exports = {
     env: 'development',
-    port: 3000,
+    port: 8000,
     mongo : {
         uri: `mongodb+srv://test:${dbPass}@cluster0.kfl4t.mongodb.net/${dbName}?retryWrites=true&w=majority`,
     },
