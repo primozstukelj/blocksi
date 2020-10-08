@@ -15,19 +15,6 @@ import Container from "@material-ui/core/Container";
 import Layout from "../components/layout";
 import Link from "next/link";
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link href="#">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -113,7 +100,6 @@ export default function SignIn() {
           </form>
         </div>
         <Box mt={8}>
-          <Copyright />
         </Box>
       </Container>
     </Layout>
