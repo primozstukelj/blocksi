@@ -138,7 +138,7 @@ userSchema.statics.findAndGenerateToken = async function (options) {
       return { user, accessToken: user.token(user._id) };
     }
   } else {
-    err.message = "Incorrect email or refreshToken";
+    err.f = "Incorrect email or refreshToken";
   }
   throw new APIError(err);
 };
