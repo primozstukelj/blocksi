@@ -11,7 +11,6 @@ import ImportContacts from "@material-ui/icons/ImportContacts";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import Layout from "../components/layout";
 import Link from "next/link";
 import MuiAlert from "@material-ui/lab/Alert";
 

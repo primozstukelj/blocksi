@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Layout from "../components/layout";
 
 export default function Home() {
   return (
@@ -15,7 +14,7 @@ export default function Home() {
         </p>
 
         <p className="description">
-          When logged in you can create or get yours contact list url
+          When logged in you can create or get yours contact list url:
           <code>/contacts</code>
         </p>
 

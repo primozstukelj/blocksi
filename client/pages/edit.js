@@ -11,12 +11,12 @@ import ImportContacts from "@material-ui/icons/ImportContacts";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import Layout from "../components/layout";
 import Link from "next/link";
 import MuiAlert from "@material-ui/lab/Alert";
 
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -54,29 +54,30 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Edit() {
-const contact = localStorage.getItem('editContact');
-    console.log(contact);
+
+function Edit(props) {
+  const { contact } = props;
+  console.log(contact);
   const classes = useStyles();
   const [resStatus, setResStatus] = useState(null);
   const { register, handleSubmit } = useForm();
 
   const onSubmit = async (data) => {
-    const jwt = document.cookie.split('=')[1];
+    const jwt = document.cookie.split("=")[1];
     // Call register end point
-    const res = await axios.post("http://localhost:8000/contacts/", data,  {
+    const res = await axios.put(`http://localhost:8000/contacts/${contact.id}`, data, {
       validateStatus: function (status) {
         return true; // default
       },
-      headers: {'Authorization': `Bearer ${jwt}`}
+      headers: { Authorization: `Bearer ${jwt}` },
     });
 
-    console.log(res)
+    console.log(res.data);
 
     // User register successed
     if (res.status >= 200 && res.status < 300) {
       // Set success message
-      setResStatus({ success: 1, msg: `Contact was created successfully!` });
+      setResStatus({ success: 1, msg: `Contact was successfully updated!` });
     } else {
       // User register failed
       // Set error message
@@ -88,91 +89,121 @@ const contact = localStorage.getItem('editContact');
   };
 
   return (
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <div className={classes.paper}>
-          <Avatar className={classes.avatar}>
-            <ImportContacts />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Create new contact
-          </Typography>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className={classes.form}
-            noValidate
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <div className={classes.paper}>
+        <Avatar className={classes.avatar}>
+          <ImportContacts />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Edit contact
+        </Typography>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className={classes.form}
+          noValidate
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                autoComplete="fname"
+                name="firstName"
+                variant="outlined"
+                required
+                fullWidth
+                id="firstName"
+                label="First Name"
+                autoFocus
+                defaultValue={contact.firstName}
+                inputRef={register({ required: true })}
+            />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="lastName"
+                label="Last Name"
+                name="lastName"
+                autoComplete="lname"
+                autoFocus
+                defaultValue={contact.lastName}
+                inputRef={register({ required: true })}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                defaultValue={contact.email}
+                inputRef={register({ required: true })}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                name="phoneNumber"
+                label="Phone Number"
+                id="phoneNumber"
+                autoFocus
+                defaultValue={contact.phoneNumber}
+                inputRef={register({ required: true })}
+              />
+            </Grid>
+          </Grid>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
           >
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="fname"
-                  name="firstName"
-                  variant="outlined"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                  inputRef={register({ required: true })}
-  >{firstName}</TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="outlined"
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="lname"
-                  inputRef={register({ required: true })}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  inputRef={register({ required: true })}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  required
-                  fullWidth
-                  name="phoneNumber"
-                  label="Phone Number"
-                  id="phoneNumber"
-                  inputRef={register({ required: true })}
-                />
-              </Grid>
+            Create
+          </Button>
+          <Grid container justify="flex-end">
+            <Grid item>
+              <Link href="/contacts" variant="body2">
+                Go back
+              </Link>
             </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-            >
-              Create
-            </Button>
-            <Grid container justify="flex-end">
-              <Grid item>
-                <Link href="/contacts" variant="body2">
-                  Go back
-                </Link>
-              </Grid>
-            </Grid>
-          </form>
-        </div>
-        <Box mt={5}>
-          <StatusAlert status={resStatus} />
-        </Box>
-      </Container>
+          </Grid>
+        </form>
+      </div>
+      <Box mt={5}>
+        <StatusAlert status={resStatus} />
+      </Box>
+    </Container>
   );
 }
+
+Edit.getInitialProps = async (ctx) => {
+  const _id = ctx.asPath.split("=")[1];
+  const jwt = document.cookie.split("=")[1];
+
+  const res = await axios.get(`http://localhost:8000/contacts/${_id}`, {
+    validateStatus: function (status) {
+      return true; // default
+    },
+    headers: { Authorization: `Bearer ${jwt}` },
+  });
+
+  // Get request was successful
+  if (res.status >= 200 && res.status < 300) {
+    // Update contacts
+    return { contact: res.data };
+  } else {
+    // Autentication error
+    return { error: res.data };
+  }
+};
+
+export default Edit;

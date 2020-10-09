@@ -14,6 +14,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";  
 import { useRouter } from "next/router";
 import axios from "axios";
+import MuiAlert from "@material-ui/lab/Alert";
+import Link from "next/link";
 import * as _ from 'lodash'
 
 const useStyles = makeStyles((theme) => ({
@@ -48,64 +50,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-/*
-const contacts = [
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-  {
-    firstName: "test",
-    lastName: "test",
-    email: "test@test.com",
-    phoneNumber: "43124312",
-  },
-];
-*/
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 export default function Contacts() {
   const classes = useStyles();
@@ -123,8 +70,6 @@ export default function Contacts() {
       headers: {'Authorization': `Bearer ${jwt}`}
     });
 
-    console.log(res.data)
-
     // Get request was successful
     if (res.status >= 200 && res.status < 300) {
       // Check if contact and res.data are same
@@ -134,7 +79,7 @@ export default function Contacts() {
       }
     } else {
       // Autentication error
-      setError( `Error: ${res.data.message}.`)
+      setError( `Error: ${res.data.message}. Please sign in.`)
     }
   };
 
@@ -161,14 +106,11 @@ export default function Contacts() {
     alert(JSON.stringify(contact))
   };
 
-  const editContact = (contact) => {
-    localStorage('editContact', contact)
-    router.push("/edit", contact);
+  const editContact = (_id) => {
+    router.push('/edit', {query: { _id }});
   };
 
   const deleteContact = async (_id) => {
-    console.log(_id);
-
     const jwt = document.cookie.split('=')[1];
     // Call register end point
     const res = await axios.delete(`http://localhost:8000/contacts/${_id}`,  {
@@ -177,8 +119,6 @@ export default function Contacts() {
       },
       headers: {'Authorization': `Bearer ${jwt}`}
     });
-
-    console.log(res.data)
 
     // Get request was successful
     if (res.status >= 200 && res.status < 300 && res.data > 0) {
@@ -239,6 +179,18 @@ export default function Contacts() {
                 </Grid>
               </Grid>
             </div>
+            { error && (
+              <Grid container spacing={2} justify="center">
+                <Grid item>
+                <Alert severity="error">{error}</Alert>
+              </Grid>
+              <Grid item justify="center" style={{alignItems: 'center',display: 'flex'}}>
+                <Link href="/login" variant="body2">
+                  Login
+                </Link>
+              </Grid>
+            </Grid>
+            )}
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
@@ -264,7 +216,7 @@ export default function Contacts() {
                     <Button onClick={viewContact.bind(this, contact)} size="small" color="primary">
                       View
                     </Button>
-                    <Button onClick={editContact.bind(this, contact)} size="small" color="primary">
+                    <Button onClick={editContact.bind(this, contact._id)} size="small" color="primary">
                       Edit
                     </Button>
                     <Button onClick={deleteContact.bind(this, contact._id)} size="small" color="primary">
