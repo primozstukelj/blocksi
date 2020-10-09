@@ -86,5 +86,9 @@ npm install
 ```
 3. Start web app on port 3000 (default)
 ```sh
+npm run build
+```
+4. Start web app on port 3000 (default)
+```sh
 npm run start
 ```
