@@ -3,7 +3,6 @@ import Layout from "../components/layout";
 
 export default function Home() {
   return (
-    <Layout>
       <div className='container'>
       <main>
         <h1 className="title">Welcome to Blocksi assignment!</h1>
@@ -47,8 +46,19 @@ export default function Home() {
           </Link>
         </div>
       </main>
-      </div>
       <style jsx>{`
+       html,
+       body {
+         padding: 0;
+         margin: 0;
+         font-family: Roboto,
+           Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+           sans-serif;
+       }
+
+       * {
+         box-sizing: border-box;
+       }
               .container {
                 min-height: 100vh;
                 padding: 0 0.5rem;
@@ -178,6 +188,6 @@ export default function Home() {
           }
         }
       `}</style>
-    </Layout>
+      </div>
   );
 }

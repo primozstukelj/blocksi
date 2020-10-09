@@ -7,7 +7,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import ImportContacts from "@material-ui/icons/ImportContacts";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.primary.light,
   },
   form: {
     width: "100%", // Fix IE 11 issue.
@@ -54,29 +54,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignUp() {
+export default function Create() {
   const classes = useStyles();
   const [resStatus, setResStatus] = useState(null);
   const { register, handleSubmit } = useForm();
 
   const onSubmit = async (data) => {
+    const jwt = document.cookie.split('=')[1];
     // Call register end point
-    const res = await axios.post("http://localhost:8000/register", data, {
+    const res = await axios.post("http://localhost:8000/contacts/", data,  {
       validateStatus: function (status) {
         return true; // default
       },
+      headers: {'Authorization': `Bearer ${jwt}`}
     });
+
+    console.log(res)
 
     // User register successed
     if (res.status >= 200 && res.status < 300) {
       // Set success message
-      setResStatus({ success: 1, msg: `Registration successed!` });
+      setResStatus({ success: 1, msg: `Contact was created successfully!` });
     } else {
       // User register failed
       // Set error message
       setResStatus({
         success: 0,
-        msg: `Error: ${res.data.message}. Message: ${res.data.errors.message}`,
+        msg: `Error: ${res.data.message}.`,
       });
     }
   };
@@ -86,10 +90,10 @@ export default function SignUp() {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <ImportContacts />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign up
+            Create new contact
           </Typography>
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -139,20 +143,10 @@ export default function SignUp() {
                   variant="outlined"
                   required
                   fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
+                  name="phoneNumber"
+                  label="Phone Number"
+                  id="phoneNumber"
                   inputRef={register({ required: true })}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox value="allowExtraEmails" color="primary" />
-                  }
-                  label="I want to receive inspiration, marketing promotions and updates via email."
                 />
               </Grid>
             </Grid>
@@ -163,12 +157,12 @@ export default function SignUp() {
               color="primary"
               className={classes.submit}
             >
-              Sign Up
+              Create
             </Button>
             <Grid container justify="flex-end">
               <Grid item>
-                <Link href="/login" variant="body2">
-                  Already have an account? Sign in
+                <Link href="/contacts" variant="body2">
+                  Go back
                 </Link>
               </Grid>
             </Grid>
